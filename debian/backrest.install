@@ -1,0 +1,2 @@
+_debbuild/backrest usr/bin/
+_debbuild/restic usr/lib/backrest/

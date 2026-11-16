@@ -1,0 +1,4 @@
+# Statically-linked (CGO_ENABLED=0) Go binaries.
+backrest: statically-linked-binary
+# Maybe one day
+backrest: no-manual-page

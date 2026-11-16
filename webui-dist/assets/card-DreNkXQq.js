@@ -1,0 +1,1 @@
+import{vt as e}from"./client-Dhn5vaVX.js";var{withProvider:a,withContext:r,useStyles:o,PropsProvider:d}=e({key:"card"}),i=a("div","root"),v=r("div","body"),s=r("div","header"),C=r("div","footer"),p=r("h3","title"),c=r("p","description");export{p as i,s as n,i as r,v as t};

@@ -1,0 +1,73 @@
+#!/usr/bin/make -f
+
+include /usr/share/dpkg/architecture.mk
+include /usr/share/dpkg/pkg-info.mk
+
+# Upstream source is the backrest/ git submodule; this repo only carries the
+# packaging. All Go inputs come from build-gomodcache/, a GOPROXY tree that
+# OBS fetches server-side from the entries in the top-level go.sum and checks
+# against their h1: hashes (obs-build PBuild/RemoteAssets.pm
+# golang_parse/golang_fetch). That go.sum is upstream's plus the Go toolchain
+# and restic modules; see debian/update-go-sum.sh.
+GO_VERSION := 1.26.11
+RESTIC_VERSION := 0.19.1
+# Report the upstream version (strip packaging suffixes like +devass1).
+BACKREST_VERSION := $(firstword $(subst +, ,$(DEB_VERSION_UPSTREAM)))
+
+export CGO_ENABLED = 0
+export GOTOOLCHAIN = local
+export GOPROXY = file://$(CURDIR)/build-gomodcache
+export GOSUMDB = off
+export GOFLAGS = -mod=readonly -trimpath
+export GOMODCACHE = $(CURDIR)/debian/.gomodcache
+export GOCACHE = $(CURDIR)/debian/.gocache
+export GOPATH = $(CURDIR)/debian/.gopath
+
+MODS := $(CURDIR)/build-gomodcache
+GOROOT_DIR := $(CURDIR)/debian/.goroot
+RESTIC_DIR := $(CURDIR)/debian/.restic
+GO := $(GOROOT_DIR)/bin/go
+TOOLCHAIN_MOD := golang.org/toolchain@v0.0.1-go$(GO_VERSION).linux-$(DEB_HOST_ARCH)
+RESTIC_MOD := github.com/restic/restic@v$(RESTIC_VERSION)
+
+%:
+	dh $@ --buildsystem=none
+
+override_dh_auto_build:
+	# Go toolchain, distributed by the Go project as the golang.org/toolchain
+	# module. Module zips don't carry file modes, so restore the executable
+	# bits like cmd/go does when it downloads a toolchain.
+	rm -rf debian/.unzip $(GOROOT_DIR) $(RESTIC_DIR)
+	unzip -q $(MODS)/golang.org/toolchain/@v/v0.0.1-go$(GO_VERSION).linux-$(DEB_HOST_ARCH).zip -d debian/.unzip
+	unzip -q $(MODS)/github.com/restic/restic/@v/v$(RESTIC_VERSION).zip -d debian/.unzip
+	mv debian/.unzip/$(TOOLCHAIN_MOD) $(GOROOT_DIR)
+	mv debian/.unzip/$(RESTIC_MOD) $(RESTIC_DIR)
+	chmod 0755 $(GOROOT_DIR)/bin/* $(GOROOT_DIR)/pkg/tool/*/*
+	$(GO) version
+
+	# Prebuilt web UI (see debian/update-webui.sh), embedded via //go:embed.
+	rm -rf backrest/webui/dist
+	cp -r webui-dist backrest/webui/dist
+	cd backrest && $(GO) build \
+		-ldflags "-s -w -X main.version=$(BACKREST_VERSION) -X main.commit=debian" \
+		-o $(CURDIR)/_debbuild/backrest ./cmd/backrest
+
+	# restic, built from its release source with the tags its build.go uses
+	# (minus selfupdate: the package manages the binary).
+	cd $(RESTIC_DIR) && $(GO) build -tags disable_grpc_modules -ldflags "-s -w" \
+		-o $(CURDIR)/_debbuild/restic ./cmd/restic
+
+override_dh_auto_test:
+	# Backrest tests need restic and network access, which aren't available
+	# in a clean build chroot. To run them locally:
+	#   cd backrest && go test ./...
+
+override_dh_installsystemd:
+	# Never stop or restart a running backrest on upgrade: it may be in the
+	# middle of a backup. The new version takes effect on the next restart.
+	dh_installsystemd --no-stop-on-upgrade --no-restart-after-upgrade
+
+override_dh_auto_clean:
+	chmod -R u+w debian/.gomodcache 2>/dev/null || true
+	rm -rf _debbuild backrest/webui/dist debian/.unzip debian/.goroot debian/.restic \
+		debian/.gomodcache debian/.gocache debian/.gopath

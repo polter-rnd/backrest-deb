@@ -1,0 +1,19 @@
+Source: backrest
+Section: admin
+Priority: optional
+Maintainer: Pavel Artsishevsky <polter.rnd@gmail.com>
+Build-Depends: debhelper-compat (= 13), unzip
+Standards-Version: 4.7.2
+Rules-Requires-Root: no
+Homepage: https://github.com/garethgeorge/backrest
+
+Package: backrest
+Architecture: amd64 arm64
+Depends: ${misc:Depends}, ca-certificates
+Description: web UI and orchestrator for restic backup
+ Backrest is a web-accessible backup solution built on top of restic. It
+ provides a web interface to create repositories, browse snapshots, restore
+ files, and schedule backup, forget and prune operations.
+ .
+ This package runs backrest as a systemd service and ships the restic
+ version it expects in /usr/lib/backrest.

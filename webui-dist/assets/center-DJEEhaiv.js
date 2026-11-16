@@ -1,0 +1,1 @@
+import{mr as e}from"./client-Dhn5vaVX.js";var a=e("div",{base:{display:"flex",alignItems:"center",justifyContent:"center"},variants:{inline:{true:{display:"inline-flex"}}}});a.displayName="Center";export{a as t};

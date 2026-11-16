@@ -1,0 +1,13 @@
+tar-ignore = .git
+tar-ignore = backrest/.github
+tar-ignore = backrest/webui/node_modules
+tar-ignore = backrest/webui/src/paraglide
+tar-ignore = _debbuild
+tar-ignore = debian/.unzip
+tar-ignore = debian/.goroot
+tar-ignore = debian/.restic
+tar-ignore = debian/.gomodcache
+tar-ignore = debian/.gocache
+tar-ignore = debian/.gopath
+tar-ignore = backrest/webui/project.inlang/cache
+tar-ignore = build-gomodcache

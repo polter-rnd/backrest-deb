@@ -1,0 +1,39 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: backrest
+Upstream-Contact: Gareth George <https://github.com/garethgeorge>
+Source: https://github.com/garethgeorge/backrest
+Comment: The binary package also contains code from the Go modules listed in
+ go.sum, which OBS fetches at build time and which are not part of this source
+ package, most notably restic (/usr/lib/backrest/restic, BSD-2-Clause,
+ Copyright 2014 Alexander Neumann and restic contributors, see
+ https://github.com/restic/restic/blob/master/LICENSE). Before any public
+ upload, audit those licenses and list them here.
+
+Files: *
+Copyright: 2023-2026 Gareth George and backrest contributors
+License: GPL-3.0+
+
+Files: debian/*
+Copyright: 2026 Pavel Artsishevsky <polter.rnd@gmail.com>
+License: GPL-3.0+
+
+Files: webui-dist/*
+Copyright: 2023-2026 Gareth George and backrest contributors
+License: GPL-3.0+
+Comment: Vite build of backrest/webui (debian/update-webui.sh). It also
+ bundles npm dependencies under various licenses; before any public upload,
+ inspect them (e.g. `npx license-checker --production` in backrest/webui).
+
+License: GPL-3.0+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 3 can be found in "/usr/share/common-licenses/GPL-3".

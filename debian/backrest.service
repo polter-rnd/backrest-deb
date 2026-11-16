@@ -1,0 +1,24 @@
+[Unit]
+Description=Backrest Service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Environment="BACKREST_PORT=127.0.0.1:9898"
+Environment="BACKREST_DATA=/var/lib/backrest"
+Environment="BACKREST_CONFIG=/etc/backrest/config.json"
+Environment="BACKREST_RESTIC_COMMAND=/usr/lib/backrest/restic"
+Environment="XDG_CACHE_HOME=/var/cache/backrest"
+# Overrides (e.g. BACKREST_PORT=0.0.0.0:9898) can go in /etc/default/backrest
+EnvironmentFile=-/etc/default/backrest
+ExecStart=/usr/bin/backrest
+Restart=on-failure
+StateDirectory=backrest
+StateDirectoryMode=0700
+CacheDirectory=backrest
+CacheDirectoryMode=0700
+ConfigurationDirectory=backrest
+ConfigurationDirectoryMode=0700
+
+[Install]
+WantedBy=multi-user.target
